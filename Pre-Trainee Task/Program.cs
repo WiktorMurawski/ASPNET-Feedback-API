@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Pre_Trainee_Task.Data;
 
 namespace Pre_Trainee_Task;
 
@@ -13,6 +15,9 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        
+        builder.Services.AddDbContext<FeedbackDbContext>(options => 
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         var app = builder.Build();
 
