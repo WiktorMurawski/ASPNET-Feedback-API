@@ -1,20 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
-using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.DTOs;
-using Pre_Trainee_Task.Models;
 using Pre_Trainee_Task.Services;
 
 namespace Pre_Trainee_Task.Controllers;
 
 /*
    POST /api/feedback — Create new feedback
-   
    GET /api/feedback — List all feedback
-   
    GET /api/feedback/{id} — Get feedback by ID
-   
    PUT /api/feedback/{id} — Update feedback
-   
    DELETE /api/feedback/{id} — Delete feedback
 */
 
@@ -22,14 +16,6 @@ namespace Pre_Trainee_Task.Controllers;
 [Route("api/[controller]")]
 public class FeedbackController : ControllerBase
 {
-    // private readonly FeedbackDbContext _context;
-    //
-    // public FeedbackController(FeedbackDbContext context)
-    // {
-    //     _context = context;
-    //     _feedbackService = new FeedbackService(context);
-    // }
-    
     private readonly IFeedbackService _feedbackService;
     
     public FeedbackController(IFeedbackService feedbackService)
@@ -101,21 +87,4 @@ public class FeedbackController : ControllerBase
 
        return NotFound();
    }
-   
-   //  // GET /api/feedback — List all feedback
-   // [HttpGet]
-   // public ActionResult<IEnumerable<Feedback>> Get()
-   // {
-   //     var feedbacks = _context.Feedbacks.ToList();
-   //     return Ok(feedbacks);
-   // }
-   //
-   // // GET /api/feedback/{id} — Get feedback by ID
-   // [HttpGet("{id}")]
-   // public ActionResult<Feedback> Get(Guid id)
-   // {
-   //     var feedback = _context.Feedbacks.Find(id);
-   //     return Ok(feedback);
-   // }
-   
 }
