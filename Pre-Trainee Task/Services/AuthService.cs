@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Models;
@@ -10,26 +10,23 @@ namespace Pre_Trainee_Task.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly FeedbackDbContext _context;
     private readonly IConfiguration _config;
+    private readonly FeedbackDbContext _context;
 
     public AuthService(FeedbackDbContext context, IConfiguration config)
     {
         _context = context;
         _config = config;
     }
-    
+
     public User Register(UserDto dto)
     {
-        User? existingUser = _context.Users.FirstOrDefault(u => 
+        var existingUser = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
-        if (existingUser != null)
-        {
-            throw new Exception("User already exists");
-        }
+        if (existingUser != null) throw new Exception("User already exists");
 
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-        User newUser = new User
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        var newUser = new User
         {
             Email = dto.Email,
             PasswordHash = hashedPassword,
@@ -41,16 +38,15 @@ public class AuthService : IAuthService
 
         return newUser;
     }
-    
+
     public string Login(UserDto dto)
     {
-        User? user = _context.Users.FirstOrDefault(u => 
+        var user = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-        {
+        if (user == null ||
+            !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             throw new Exception("Invalid credentials");
-        }
-        
+
         // Prepare claims
         var claims = new[]
         {
@@ -59,14 +55,16 @@ public class AuthService : IAuthService
         };
 
         // Get key from config
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        var key =
+            new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         // Create the token
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
+            _config["Jwt:Issuer"],
+            _config["Jwt:Audience"],
+            claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds
         );

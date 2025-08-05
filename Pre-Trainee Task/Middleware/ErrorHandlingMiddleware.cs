@@ -1,15 +1,15 @@
-
-
 using System.Net;
 using System.Text.Json;
 
 namespace Pre_Trainee_Task.Middleware;
+
 public class ErrorHandlingMiddleware
 {
-    private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
+    private readonly RequestDelegate _next;
 
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    public ErrorHandlingMiddleware(RequestDelegate next,
+        ILogger<ErrorHandlingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -33,7 +33,10 @@ public class ErrorHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var result = JsonSerializer.Serialize(new { error = "An unexpected error occurred. Please try again later." });
+        var result = JsonSerializer.Serialize(new
+        {
+            error = "An unexpected error occurred. Please try again later."
+        });
         return context.Response.WriteAsync(result);
     }
 }

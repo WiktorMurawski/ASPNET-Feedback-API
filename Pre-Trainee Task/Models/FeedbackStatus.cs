@@ -4,5 +4,5 @@ public enum FeedbackStatus
 {
     New,
     InProgress,
-    Closed,
+    Closed
 }

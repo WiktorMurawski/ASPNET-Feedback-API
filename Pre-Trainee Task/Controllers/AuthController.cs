@@ -9,7 +9,7 @@ namespace Pre_Trainee_Task.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    
+
     public AuthController(IAuthService authService)
     {
         _authService = authService;
@@ -18,11 +18,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(UserDto dto)
     {
-        if (dto == null)
-        {
-            return BadRequest();
-        }
-        
+        if (dto == null) return BadRequest();
+
         try
         {
             var user = _authService.Register(dto);
@@ -37,11 +34,8 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login(UserDto dto)
     {
-        if (dto == null)
-        {
-            return BadRequest();
-        }
-        
+        if (dto == null) return BadRequest();
+
         try
         {
             var token = _authService.Login(dto);

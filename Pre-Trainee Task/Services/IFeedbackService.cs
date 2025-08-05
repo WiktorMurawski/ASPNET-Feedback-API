@@ -10,4 +10,3 @@ public interface IFeedbackService
     FeedbackReadDto Update(Guid id, FeedbackCreateDto dto);
     bool Delete(Guid id);
 }
-

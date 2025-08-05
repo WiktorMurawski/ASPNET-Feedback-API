@@ -6,7 +6,7 @@ namespace Pre_Trainee_Task.Filters;
 public class ExecutionTimeFilter : IActionFilter
 {
     private readonly ILogger<ExecutionTimeFilter> _logger;
-    private Stopwatch _stopwatch;
+    private readonly Stopwatch _stopwatch;
 
     public ExecutionTimeFilter(ILogger<ExecutionTimeFilter> logger)
     {
@@ -26,6 +26,7 @@ public class ExecutionTimeFilter : IActionFilter
         var actionName = context.ActionDescriptor.DisplayName;
         var elapsedMs = _stopwatch.ElapsedMilliseconds;
 
-        _logger.LogInformation($"Action {actionName} executed in {elapsedMs} ms");
+        _logger.LogInformation(
+            $"Action {actionName} executed in {elapsedMs} ms");
     }
 }

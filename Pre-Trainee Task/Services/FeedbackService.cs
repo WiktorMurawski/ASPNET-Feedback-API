@@ -75,10 +75,7 @@ public class FeedbackService : IFeedbackService
     public FeedbackReadDto Update(Guid id, FeedbackCreateDto dto)
     {
         var feedback = _context.Feedbacks.Find(id);
-        if (feedback == null)
-        {
-            return null;
-        }
+        if (feedback == null) return null;
 
         feedback.Title = dto.Title;
         feedback.Message = dto.Message;
@@ -99,15 +96,12 @@ public class FeedbackService : IFeedbackService
             UserId = feedback.UserId
         };
     }
-    
+
     public bool Delete(Guid id)
     {
         var feedback = _context.Feedbacks.Find(id);
-        if (feedback == null)
-        {
-            return false;
-        }
-    
+        if (feedback == null) return false;
+
         _context.Feedbacks.Remove(feedback);
         _context.SaveChanges();
         return true;

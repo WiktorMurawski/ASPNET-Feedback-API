@@ -10,4 +10,3 @@ public class FeedbackCreateDto
     public FeedbackType Type { get; set; }
     public Guid UserId { get; set; }
 }
-

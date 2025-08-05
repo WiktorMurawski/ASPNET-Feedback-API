@@ -4,5 +4,5 @@ public enum FeedbackType
 {
     Bug,
     Suggestion,
-    Question,
+    Question
 }

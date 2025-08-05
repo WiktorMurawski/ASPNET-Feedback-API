@@ -19,75 +19,63 @@ namespace Pre_Trainee_Task.Controllers;
 public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
-    
+
     public FeedbackController(IFeedbackService feedbackService)
     {
         _feedbackService = feedbackService;
     }
-    
+
     // POST /api/feedback — Create new feedback
     [HttpPost]
-    public ActionResult<FeedbackReadDto> PostFeedback([FromBody] FeedbackCreateDto dto)
+    public ActionResult<FeedbackReadDto> PostFeedback(
+        [FromBody] FeedbackCreateDto dto)
     {
-        if (dto == null)
-        {
-            return BadRequest();
-        }
+        if (dto == null) return BadRequest();
 
         var feedback = _feedbackService.Create(dto);
 
-        return CreatedAtAction(nameof(GetById), new { id = feedback.Id }, feedback);
+        return CreatedAtAction(nameof(GetById), new { id = feedback.Id },
+            feedback);
     }
-   
-   // GET /api/feedback — List all feedback
-   [HttpGet]
-   public ActionResult<IEnumerable<FeedbackReadDto>> GetAll()
-   {
-       var feedbacks = _feedbackService.GetAll();
-       return Ok(feedbacks);
-   }
 
-   // GET /api/feedback/{id} — Get feedback by ID
-   [HttpGet("{id}")]
-   public ActionResult<FeedbackReadDto> GetById(Guid id)
-   {
-       var feedback = _feedbackService.GetById(id);
-       if (feedback == null)
-       {
-           return NotFound();
-       }
-       
-       return Ok(feedback);
-   }
-   
-   // PUT /api/feedback/{id} — Update feedback
-   [HttpPut("{id}")]
-   public ActionResult<FeedbackReadDto> UpdateFeedback(Guid id, [FromBody] FeedbackCreateDto dto)
-   {
-       if (dto == null)
-       {
-           return BadRequest();
-       }
+    // GET /api/feedback — List all feedback
+    [HttpGet]
+    public ActionResult<IEnumerable<FeedbackReadDto>> GetAll()
+    {
+        var feedbacks = _feedbackService.GetAll();
+        return Ok(feedbacks);
+    }
 
-       var feedback = _feedbackService.Update(id, dto);
-       if (feedback == null)
-       {
-           return NotFound();
-       }
+    // GET /api/feedback/{id} — Get feedback by ID
+    [HttpGet("{id}")]
+    public ActionResult<FeedbackReadDto> GetById(Guid id)
+    {
+        var feedback = _feedbackService.GetById(id);
+        if (feedback == null) return NotFound();
 
-       return Ok(feedback);
-   }
-   
-   // DELETE /api/feedback/{id} — Delete feedback
-   [Authorize(Roles = "Admin")]
-   [HttpDelete("{id}")]
-   public ActionResult DeleteFeedback(Guid id)
-   {
-       if (_feedbackService.Delete(id))
-       {
-           return NoContent();
-       }
+        return Ok(feedback);
+    }
 
-       return NotFound();
-   }
+    // PUT /api/feedback/{id} — Update feedback
+    [HttpPut("{id}")]
+    public ActionResult<FeedbackReadDto> UpdateFeedback(Guid id,
+        [FromBody] FeedbackCreateDto dto)
+    {
+        if (dto == null) return BadRequest();
+
+        var feedback = _feedbackService.Update(id, dto);
+        if (feedback == null) return NotFound();
+
+        return Ok(feedback);
+    }
+
+    // DELETE /api/feedback/{id} — Delete feedback
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public ActionResult DeleteFeedback(Guid id)
+    {
+        if (_feedbackService.Delete(id)) return NoContent();
+
+        return NotFound();
+    }
 }
