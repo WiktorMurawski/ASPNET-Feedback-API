@@ -42,7 +42,7 @@ public class FeedbackDbContext : DbContext
                 Id = Guid.NewGuid(),
                 Title = "Question Title",
                 Message = "Question message",
-                CreatedAt = DateTime.Now - TimeSpan.FromDays(7),
+                CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(7),
                 Status = FeedbackStatus.Closed,
                 Type = FeedbackType.Question,
                 UserId = Guid.NewGuid()

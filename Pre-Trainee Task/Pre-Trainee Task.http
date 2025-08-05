@@ -3,4 +3,16 @@
 #GET {{Pre_Trainee_Task_HostAddress}}/weatherforecast/
 #Accept: application/json
 
+# POST /api/feedback — Create new feedback
+
+# GET /api/feedback — List all feedback
+GET {{Pre_Trainee_Task_HostAddress}}/feedback/
+Accept: application/json
+
+# GET /api/feedback/{id} — Get feedback by ID
+
+# PUT /api/feedback/{id} — Update feedback
+   
+# DELETE /api/feedback/{id} — Delete feedback
+
 ###

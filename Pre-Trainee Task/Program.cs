@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Pre_Trainee_Task.Data;
+using Pre_Trainee_Task.Services;
 
 namespace Pre_Trainee_Task;
 
@@ -15,10 +17,12 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        
+
         builder.Services.AddDbContext<FeedbackDbContext>(options => 
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
