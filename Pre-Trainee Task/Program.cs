@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Pre_Trainee_Task.Filters;
+using Pre_Trainee_Task.Middleware;
 
 
 namespace Pre_Trainee_Task;
@@ -28,7 +31,7 @@ public class Program
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         
-        
+        // Makes JWT work with swagger
         builder.Services.AddSwaggerGen(options =>
         {
             options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -71,8 +74,14 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+        
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<ExecutionTimeFilter>();
+        });
 
-
+        builder.Services.AddScoped<ExecutionTimeFilter>();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -84,11 +93,16 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseRouting();
+        
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseMiddleware<ErrorHandlingMiddleware>();
+
         app.UseAuthentication(); 
         app.UseAuthorization();
 
         app.MapControllers();
-
+        
         app.Run();
     }
 }
