@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Services;
@@ -12,6 +13,7 @@ namespace Pre_Trainee_Task.Controllers;
    DELETE /api/feedback/{id} — Delete feedback
 */
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FeedbackController : ControllerBase
@@ -77,6 +79,7 @@ public class FeedbackController : ControllerBase
    }
    
    // DELETE /api/feedback/{id} — Delete feedback
+   [Authorize(Roles = "Admin")]
    [HttpDelete("{id}")]
    public ActionResult DeleteFeedback(Guid id)
    {

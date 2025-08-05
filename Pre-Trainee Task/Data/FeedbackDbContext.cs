@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pre_Trainee_Task.Models;
 
@@ -6,6 +7,7 @@ namespace Pre_Trainee_Task.Data;
 public class FeedbackDbContext : DbContext
 {
     public DbSet<Feedback> Feedbacks { get; set; }
+    public DbSet<User> Users { get; set; }
     
     public FeedbackDbContext(DbContextOptions<FeedbackDbContext> options) :
         base(options)
@@ -16,6 +18,24 @@ public class FeedbackDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Test Users
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "admin@admin.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin"), // very bad, only for testing
+                Role = UserRole.Admin,
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "user@user.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("1234"),
+                Role = UserRole.User,
+            });
+        
+        // Test Feedbacks
         modelBuilder.Entity<Feedback>().HasData(
             new Feedback
             {
