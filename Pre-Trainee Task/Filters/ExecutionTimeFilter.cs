@@ -16,12 +16,12 @@ public class ExecutionTimeFilter : IActionFilter
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        _stopwatch.Restart(); // Start timing before the action executes
+        _stopwatch.Restart();
     }
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        _stopwatch.Stop(); // Stop timing after action executes
+        _stopwatch.Stop();
 
         var actionName = context.ActionDescriptor.DisplayName;
         var elapsedMs = _stopwatch.ElapsedMilliseconds;

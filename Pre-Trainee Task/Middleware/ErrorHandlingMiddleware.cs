@@ -19,7 +19,7 @@ public class ErrorHandlingMiddleware
     {
         try
         {
-            await _next(context); // Call next middleware
+            await _next(context);
         }
         catch (Exception ex)
         {
