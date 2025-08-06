@@ -22,14 +22,22 @@ namespace Pre_Trainee_Task.Controllers;
 public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
+    private readonly IEmailService _emailService;
 
     /// <summary>
     /// Initializes a new instance of the controller
     /// </summary>
     /// <param name="feedbackService">Service for handling feedback related CRUD operations</param>
-    public FeedbackController(IFeedbackService feedbackService)
+    /// <param name="emailService">Service for sending dummy emails when feedbacks get added/modified/deleted</param>
+    public FeedbackController(IFeedbackService feedbackService, IEmailService emailService)
     {
         _feedbackService = feedbackService;
+        _emailService = emailService;
+    }
+
+    private void SendEmail(string email, string subject, string body)
+    {
+        _emailService.Send(email, subject, body);
     }
     
     // POST /api/feedback — Create new feedback
@@ -48,6 +56,7 @@ public class FeedbackController : ControllerBase
 
         var feedback = _feedbackService.Create(dto);
 
+        SendEmail("admin@admin.com", "New Feedback Created", $"Feedback content:\n{feedback}");
         return CreatedAtAction(nameof(GetById), new { id = feedback.Id },
             feedback);
     }
@@ -81,7 +90,7 @@ public class FeedbackController : ControllerBase
             TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
             Items = pagedFeedbacks
         };
-
+        
         return Ok(result);
     }
 
@@ -121,6 +130,7 @@ public class FeedbackController : ControllerBase
         var feedback = _feedbackService.Update(id, dto);
         if (feedback == null) return NotFound();
 
+        SendEmail("admin@admin.com", $"Feedback {id} modified", $"New feedback content: {dto}");
         return Ok(feedback);
     }
 
@@ -135,8 +145,10 @@ public class FeedbackController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteFeedback(Guid id)
     {
+        var feedback = _feedbackService.GetById(id);
         if (_feedbackService.Delete(id)) return NoContent();
 
+        SendEmail("admin@admin.com", $"Feedback {id} deleted", $"Deleted feedback content: {feedback}");
         return NotFound();
     }
 }

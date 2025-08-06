@@ -17,4 +17,16 @@ public class FeedbackCreateDto
     public FeedbackType Type { get; set; }
     [Required]
     public Guid UserId { get; set; }
+    
+    public override string ToString()
+    {
+        string str = $"""
+                      Title: {this.Title}
+                      Message: {this.Message}
+                      Status: {this.Status}
+                      Type: {this.Type}
+                      UserId: {this.UserId}
+                      """;
+        return str;
+    }
 }

@@ -66,6 +66,7 @@ public static class Program
 
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddSingleton<IEmailService, DummyEmailService>();
 
         // Makes JWT work with swagger
         builder.Services.AddSwaggerGen(options =>
@@ -140,5 +141,6 @@ public static class Program
         });
 
         builder.Services.AddScoped<ExecutionTimeFilter>();
+        
     }
 }
