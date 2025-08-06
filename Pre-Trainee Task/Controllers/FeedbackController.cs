@@ -13,6 +13,9 @@ namespace Pre_Trainee_Task.Controllers;
    DELETE /api/feedback/{id} — Delete feedback
 */
 
+/// <summary>
+/// Handles CRUD operations for feedback
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -20,12 +23,23 @@ public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
 
+    /// <summary>
+    /// Initializes a new instance of the controller
+    /// </summary>
+    /// <param name="feedbackService">Service for handling feedback related CRUD operations</param>
     public FeedbackController(IFeedbackService feedbackService)
     {
         _feedbackService = feedbackService;
     }
-
+    
     // POST /api/feedback — Create new feedback
+    /// <summary>
+    /// POST method for creating new feedback
+    /// </summary>
+    /// <param name="dto">Feedback creation DTO</param>
+    /// <returns>Created feedback data</returns>
+    /// <response code="201">Feedback created successfully</response>
+    /// <response code="400">Invalid request data</response>
     [HttpPost]
     public ActionResult<FeedbackReadDto> PostFeedback(
         [FromBody] FeedbackCreateDto? dto)
@@ -39,14 +53,46 @@ public class FeedbackController : ControllerBase
     }
 
     // GET /api/feedback — List all feedback
+    /// <summary>
+    /// Retrieves paginated feedback results
+    /// </summary>
+    /// <param name="pageNumber">Page number (default 1)</param>
+    /// <param name="pageSize">Number of items per page (default 5)</param>
+    /// <returns>Paginated list of feedback entries</returns>
+    /// <response code="200">Feedback list retrieved successfully</response>
     [HttpGet]
-    public ActionResult<IEnumerable<FeedbackReadDto>> GetAll()
+    public ActionResult<IEnumerable<FeedbackReadDto>> GetAll(    
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
-        var feedbacks = _feedbackService.GetAll();
-        return Ok(feedbacks);
+        List<FeedbackReadDto> feedbacks = _feedbackService.GetAll().ToList();
+
+        int totalItems = feedbacks.Count;
+        var pagedFeedbacks = feedbacks
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var result = new
+        {
+            TotalItems = totalItems,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+            Items = pagedFeedbacks
+        };
+
+        return Ok(result);
     }
 
     // GET /api/feedback/{id} — Get feedback by ID
+    /// <summary>
+    /// GET method that retrieves feedback by its ID
+    /// </summary>
+    /// <param name="id">ID of feedback to retrieve</param>
+    /// <returns>Retrieved feedback</returns>
+    /// <response code="200">Feedback retrieved successfully</response>
+    /// <response code="404">Feedback with the given ID was not found</response>
     [HttpGet("{id}")]
     public ActionResult<FeedbackReadDto> GetById(Guid id)
     {
@@ -57,6 +103,15 @@ public class FeedbackController : ControllerBase
     }
 
     // PUT /api/feedback/{id} — Update feedback
+    /// <summary>
+    /// PUT method for updating feedback with the specified id
+    /// </summary>
+    /// <param name="id">Id of the feedback to update</param>
+    /// <param name="dto">New feedback data</param>
+    /// <returns>Updated feedback</returns>
+    /// <response code="200">Feedback updated successfully</response>
+    /// <response code="400">Invalid request data</response>
+    /// <response code="404">Feedback with the given ID was not found</response>
     [HttpPut("{id}")]
     public ActionResult<FeedbackReadDto> UpdateFeedback(Guid id,
         [FromBody] FeedbackCreateDto? dto)
@@ -70,6 +125,12 @@ public class FeedbackController : ControllerBase
     }
 
     // DELETE /api/feedback/{id} — Delete feedback
+    /// <summary>
+    /// DELETE method for deleting a feedback by ID
+    /// </summary>
+    /// <param name="id">ID of feedback to delete</param>
+    /// <response code="204">Feedback deleted successfully</response>
+    /// <response code="404">Feedback with the given ID was not found</response>
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public ActionResult DeleteFeedback(Guid id)
