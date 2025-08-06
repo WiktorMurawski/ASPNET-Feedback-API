@@ -72,7 +72,7 @@ public class FeedbackService : IFeedbackService
         };
     }
 
-    public FeedbackReadDto Update(Guid id, FeedbackCreateDto dto)
+    public FeedbackReadDto? Update(Guid id, FeedbackCreateDto dto)
     {
         var feedback = _context.Feedbacks.Find(id);
         if (feedback == null) return null;

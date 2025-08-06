@@ -1,7 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Pre_Trainee_Task.Config;
 using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Models;
@@ -10,13 +12,13 @@ namespace Pre_Trainee_Task.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly IConfiguration _config;
+    private readonly JwtConfig _jwtConfig;
     private readonly FeedbackDbContext _context;
 
-    public AuthService(FeedbackDbContext context, IConfiguration config)
+    public AuthService(FeedbackDbContext context, IOptions<JwtConfig> jwtConfig)
     {
         _context = context;
-        _config = config;
+        _jwtConfig = jwtConfig.Value;
     }
 
     public User Register(UserDto dto)
@@ -41,35 +43,33 @@ public class AuthService : IAuthService
 
     public string Login(UserDto dto)
     {
-        var user = _context.Users.FirstOrDefault(u =>
+        User? user = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
         if (user == null ||
             !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            throw new Exception("Invalid credentials");
-
-        // Prepare claims
-        var claims = new[]
         {
+            throw new Exception("Invalid credentials");
+        }
+
+        Claim[] claims =
+        [
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role.ToString())
-        };
+        ];
+        
+        SymmetricSecurityKey key = 
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
+        SigningCredentials creds = 
+            new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Get key from config
-        var key =
-            new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        // Create the token
-        var token = new JwtSecurityToken(
-            _config["Jwt:Issuer"],
-            _config["Jwt:Audience"],
+        JwtSecurityToken token = new JwtSecurityToken(
+            _jwtConfig.Issuer,
+            _jwtConfig.Audience,
             claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: creds
         );
 
-        // Return the token as a string
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

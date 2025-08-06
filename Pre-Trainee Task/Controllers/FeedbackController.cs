@@ -28,7 +28,7 @@ public class FeedbackController : ControllerBase
     // POST /api/feedback — Create new feedback
     [HttpPost]
     public ActionResult<FeedbackReadDto> PostFeedback(
-        [FromBody] FeedbackCreateDto dto)
+        [FromBody] FeedbackCreateDto? dto)
     {
         if (dto == null) return BadRequest();
 
@@ -59,7 +59,7 @@ public class FeedbackController : ControllerBase
     // PUT /api/feedback/{id} — Update feedback
     [HttpPut("{id}")]
     public ActionResult<FeedbackReadDto> UpdateFeedback(Guid id,
-        [FromBody] FeedbackCreateDto dto)
+        [FromBody] FeedbackCreateDto? dto)
     {
         if (dto == null) return BadRequest();
 

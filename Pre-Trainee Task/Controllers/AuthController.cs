@@ -16,7 +16,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public IActionResult Register(UserDto dto)
+    public IActionResult Register(UserDto? dto)
     {
         if (dto == null) return BadRequest();
 
@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login(UserDto dto)
+    public IActionResult Login(UserDto? dto)
     {
         if (dto == null) return BadRequest();
 

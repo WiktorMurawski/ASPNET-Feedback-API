@@ -4,7 +4,7 @@ namespace Pre_Trainee_Task.DTOs;
 
 public class FeedbackReadDto
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public FeedbackStatus Status { get; set; }

@@ -21,9 +21,9 @@ public class ErrorHandlingMiddleware
         {
             await _next(context);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            _logger.LogError(ex, "An unhandled exception occurred.");
+            _logger.LogError(e, "An unhandled exception occurred.");
             await HandleExceptionAsync(context);
         }
     }
