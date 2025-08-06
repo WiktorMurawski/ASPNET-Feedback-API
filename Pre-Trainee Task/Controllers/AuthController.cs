@@ -5,7 +5,7 @@ using Pre_Trainee_Task.Services;
 namespace Pre_Trainee_Task.Controllers;
 
 /// <summary>
-/// Handles authentication-related operations such as user registration and login
+///     Handles authentication-related operations - user registration and login
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -14,7 +14,7 @@ public class AuthController : ControllerBase
     private readonly IAuthService _authService;
 
     /// <summary>
-    /// Initializes a new instance of the controller
+    ///     Initializes a new instance of the controller
     /// </summary>
     /// <param name="authService">Service for handling authentication logic</param>
     public AuthController(IAuthService authService)
@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new user
+    ///     Registers a new user
     /// </summary>
     /// <param name="dto">The user registration data</param>
     /// <returns> The registered user's email if registration was successful</returns>
@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Authenticates a user and returns a JWT token
+    ///     Authenticates a user and returns a JWT token
     /// </summary>
     /// <param name="dto">The user login data</param>
     /// <returns> JWT token if authentication is successful </returns>

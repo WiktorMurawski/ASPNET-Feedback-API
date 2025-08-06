@@ -18,7 +18,7 @@ public class RequestLoggingMiddleware
     {
         var stopwatch = Stopwatch.StartNew();
 
-        await _next(context); // Call the next middleware (or endpoint)
+        await _next(context);
 
         stopwatch.Stop();
 

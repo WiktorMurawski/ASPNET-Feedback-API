@@ -13,7 +13,7 @@ public class FeedbackDbContext : DbContext
     public DbSet<Feedback> Feedbacks { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<AuditLogEntry> AuditLogs { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

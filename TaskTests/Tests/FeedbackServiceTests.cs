@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Http;
-
-namespace Pre_Trainee_Task.Tests;
 using Microsoft.EntityFrameworkCore;
 using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Models;
 using Pre_Trainee_Task.Services;
-using Xunit;
 
+namespace Pre_Trainee_Task.Tests;
 
 public class FeedbackServiceTests
 {
@@ -30,7 +28,7 @@ public class FeedbackServiceTests
         {
             Title = "Test Title",
             Message = "Test Message",
-            Status = FeedbackStatus.InProgress, 
+            Status = FeedbackStatus.InProgress,
             Type = FeedbackType.Bug,
             UserId = Guid.NewGuid()
         };
@@ -71,7 +69,7 @@ public class FeedbackServiceTests
         context.Feedbacks.Add(oldFeedback);
         context.SaveChanges();
 
-        var dto = new FeedbackCreateDto()
+        var dto = new FeedbackCreateDto
         {
             Title = "New Title",
             Message = "New Message",
@@ -81,7 +79,7 @@ public class FeedbackServiceTests
         };
         service.Update(id, dto);
         var newFeedback = context.Feedbacks.Find(id);
-        
+
         Assert.NotNull(newFeedback);
         Assert.Equal(newFeedback.Id, oldFeedback.Id);
         Assert.Equal(newFeedback.Title, dto.Title);
@@ -90,13 +88,13 @@ public class FeedbackServiceTests
         Assert.Equal(newFeedback.CreatedAt, newFeedback.CreatedAt);
         Assert.Equal(newFeedback.UserId, newFeedback.UserId);
     }
-        
-    
+
+
     [Fact]
     public void Delete_Should_Return_False_If_Not_Found()
     {
         var service = GetService(out var context);
-        
+
         var result = service.Delete(Guid.NewGuid());
 
         Assert.False(result);

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ public static class Program
         {
             AddServicesToBuilder(builder);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Console.WriteLine($"Error during adding services to builder: {e}");
         }
@@ -67,17 +68,18 @@ public static class Program
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddSingleton<IEmailService, DummyEmailService>();
-        
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
-        // Makes JWT work with swagger
+        // Swagger
         builder.Services.AddSwaggerGen(options =>
         {
-            var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlFile =
+                $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             options.IncludeXmlComments(xmlPath);
-            
+
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -103,47 +105,42 @@ public static class Program
             });
         });
 
+        // JWT setup
         builder.Services.Configure<JwtConfig>(
             builder.Configuration.GetSection("Jwt")
         );
-        
-        // Bind JwtConfig
-        JwtConfig? jwtConfig = builder.Configuration
+
+        var jwtConfig = builder.Configuration
             .GetSection("Jwt")
             .Get<JwtConfig>();
         if (jwtConfig == null)
-        {
-            throw new Exception("JWT config couldn't be found in appsettings.json");
-        }
-
-        builder.Services.Configure<JwtConfig>(
-            builder.Configuration.GetSection("Jwt")
-        );
+            throw new Exception(
+                "JWT config couldn't be found in appsettings.json");
 
         // JWT auth
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtConfig.Issuer,
-                    ValidAudience = jwtConfig.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtConfig.Key))
-                };
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtConfig.Issuer,
+                        ValidAudience = jwtConfig.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtConfig.Key))
+                    };
             });
-        
+
         builder.Services.AddControllers(options =>
         {
             options.Filters.Add<ExecutionTimeFilter>();
         });
 
         builder.Services.AddScoped<ExecutionTimeFilter>();
-        
     }
 }

@@ -7,30 +7,18 @@ namespace Pre_Trainee_Task.Services;
 
 public class FeedbackService : IFeedbackService
 {
-    private readonly FeedbackDbContext _context;
     private readonly IAuditService _auditService;
+    private readonly FeedbackDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public FeedbackService(
-        FeedbackDbContext context, 
+        FeedbackDbContext context,
         IAuditService auditService,
         IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _auditService = auditService;
         _httpContextAccessor = httpContextAccessor;
-    }
-    
-    private string GetCurrentUser()
-    {
-        var user = _httpContextAccessor.HttpContext?.User;
-
-        // Use email claim directly
-        var email = user?.FindFirst(ClaimTypes.Email)?.Value;
-        if (!string.IsNullOrEmpty(email))
-            return email;
-
-        return "Unknown";
     }
 
     public IEnumerable<FeedbackReadDto> GetAll()
@@ -77,19 +65,19 @@ public class FeedbackService : IFeedbackService
             UserId = dto.UserId
         };
 
-        var logEntry = new AuditLogEntry()
+        var logEntry = new AuditLogEntry
         {
             Id = Guid.NewGuid(),
             Actor = GetCurrentUser(),
             FeedbackId = feedback.Id,
             Method = Method.POST,
-            Timestamp = DateTime.UtcNow,
+            Timestamp = DateTime.UtcNow
         };
-        
+
         _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Add(feedback);
         _context.SaveChanges();
-        
+
         return new FeedbackReadDto
         {
             Id = feedback.Id,
@@ -113,15 +101,15 @@ public class FeedbackService : IFeedbackService
         feedback.Type = dto.Type;
         feedback.UserId = dto.UserId;
 
-        var logEntry = new AuditLogEntry()
+        var logEntry = new AuditLogEntry
         {
             Id = Guid.NewGuid(),
             Actor = GetCurrentUser(),
             FeedbackId = feedback.Id,
             Method = Method.PUT,
-            Timestamp = DateTime.UtcNow,
+            Timestamp = DateTime.UtcNow
         };
-        
+
         _context.AuditLogs.Add(logEntry);
         _context.SaveChanges();
 
@@ -142,18 +130,29 @@ public class FeedbackService : IFeedbackService
         var feedback = _context.Feedbacks.Find(id);
         if (feedback == null) return false;
 
-        var logEntry = new AuditLogEntry()
+        var logEntry = new AuditLogEntry
         {
             Id = Guid.NewGuid(),
             Actor = GetCurrentUser(),
             FeedbackId = feedback.Id,
             Method = Method.PUT,
-            Timestamp = DateTime.UtcNow,
+            Timestamp = DateTime.UtcNow
         };
-        
+
         _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Remove(feedback);
         _context.SaveChanges();
         return true;
+    }
+
+    private string GetCurrentUser()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+
+        var email = user?.FindFirst(ClaimTypes.Email)?.Value;
+        if (!string.IsNullOrEmpty(email))
+            return email;
+
+        return "Unknown";
     }
 }

@@ -14,22 +14,29 @@ namespace Pre_Trainee_Task.Controllers;
 */
 
 /// <summary>
-/// Handles CRUD operations for feedback
+///     Handles CRUD operations for feedback
 /// </summary>
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FeedbackController : ControllerBase
 {
-    private readonly IFeedbackService _feedbackService;
     private readonly IEmailService _emailService;
+    private readonly IFeedbackService _feedbackService;
 
     /// <summary>
-    /// Initializes a new instance of the controller
+    ///     Initializes a new instance of the controller
     /// </summary>
-    /// <param name="feedbackService">Service for handling feedback related CRUD operations</param>
-    /// <param name="emailService">Service for sending dummy emails when feedbacks get added/modified/deleted</param>
-    public FeedbackController(IFeedbackService feedbackService, IEmailService emailService)
+    /// <param name="feedbackService">
+    ///     Service for handling feedback related CRUD
+    ///     operations
+    /// </param>
+    /// <param name="emailService">
+    ///     Service for sending dummy emails when feedbacks get
+    ///     added/modified/deleted
+    /// </param>
+    public FeedbackController(IFeedbackService feedbackService,
+        IEmailService emailService)
     {
         _feedbackService = feedbackService;
         _emailService = emailService;
@@ -39,10 +46,10 @@ public class FeedbackController : ControllerBase
     {
         _emailService.Send(email, subject, body);
     }
-    
+
     // POST /api/feedback — Create new feedback
     /// <summary>
-    /// POST method for creating new feedback
+    ///     POST method for creating new feedback
     /// </summary>
     /// <param name="dto">Feedback creation DTO</param>
     /// <returns>Created feedback data</returns>
@@ -56,27 +63,28 @@ public class FeedbackController : ControllerBase
 
         var feedback = _feedbackService.Create(dto);
 
-        SendEmail("admin@admin.com", "New Feedback Created", $"Feedback content:\n{feedback}");
+        SendEmail("admin@admin.com", "New Feedback Created",
+            $"Feedback content:\n{feedback}");
         return CreatedAtAction(nameof(GetById), new { id = feedback.Id },
             feedback);
     }
 
     // GET /api/feedback — List all feedback
     /// <summary>
-    /// Retrieves paginated feedback results
+    ///     Retrieves paginated feedback results
     /// </summary>
     /// <param name="pageNumber">Page number (default 1)</param>
     /// <param name="pageSize">Number of items per page (default 5)</param>
     /// <returns>Paginated list of feedback entries</returns>
     /// <response code="200">Feedback list retrieved successfully</response>
     [HttpGet]
-    public ActionResult<IEnumerable<FeedbackReadDto>> GetAll(    
+    public ActionResult<IEnumerable<FeedbackReadDto>> GetAll(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
         List<FeedbackReadDto> feedbacks = _feedbackService.GetAll().ToList();
 
-        int totalItems = feedbacks.Count;
+        var totalItems = feedbacks.Count;
         var pagedFeedbacks = feedbacks
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -90,13 +98,13 @@ public class FeedbackController : ControllerBase
             TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
             Items = pagedFeedbacks
         };
-        
+
         return Ok(result);
     }
 
     // GET /api/feedback/{id} — Get feedback by ID
     /// <summary>
-    /// GET method that retrieves feedback by its ID
+    ///     GET method that retrieves feedback by its ID
     /// </summary>
     /// <param name="id">ID of feedback to retrieve</param>
     /// <returns>Retrieved feedback</returns>
@@ -113,7 +121,7 @@ public class FeedbackController : ControllerBase
 
     // PUT /api/feedback/{id} — Update feedback
     /// <summary>
-    /// PUT method for updating feedback with the specified id
+    ///     PUT method for updating feedback with the specified id
     /// </summary>
     /// <param name="id">Id of the feedback to update</param>
     /// <param name="dto">New feedback data</param>
@@ -130,13 +138,14 @@ public class FeedbackController : ControllerBase
         var feedback = _feedbackService.Update(id, dto);
         if (feedback == null) return NotFound();
 
-        SendEmail("admin@admin.com", $"Feedback {id} modified", $"New feedback content: {dto}");
+        SendEmail("admin@admin.com", $"Feedback {id} modified",
+            $"New feedback content: {dto}");
         return Ok(feedback);
     }
 
     // DELETE /api/feedback/{id} — Delete feedback
     /// <summary>
-    /// DELETE method for deleting a feedback by ID
+    ///     DELETE method for deleting a feedback by ID
     /// </summary>
     /// <param name="id">ID of feedback to delete</param>
     /// <response code="204">Feedback deleted successfully</response>
@@ -148,7 +157,8 @@ public class FeedbackController : ControllerBase
         var feedback = _feedbackService.GetById(id);
         if (_feedbackService.Delete(id)) return NoContent();
 
-        SendEmail("admin@admin.com", $"Feedback {id} deleted", $"Deleted feedback content: {feedback}");
+        SendEmail("admin@admin.com", $"Feedback {id} deleted",
+            $"Deleted feedback content: {feedback}");
         return NotFound();
     }
 }

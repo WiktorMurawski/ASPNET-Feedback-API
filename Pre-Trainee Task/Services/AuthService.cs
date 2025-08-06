@@ -12,8 +12,8 @@ namespace Pre_Trainee_Task.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly JwtConfig _jwtConfig;
     private readonly FeedbackDbContext _context;
+    private readonly JwtConfig _jwtConfig;
 
     public AuthService(FeedbackDbContext context, IOptions<JwtConfig> jwtConfig)
     {
@@ -43,26 +43,24 @@ public class AuthService : IAuthService
 
     public string Login(UserDto dto)
     {
-        User? user = _context.Users.FirstOrDefault(u =>
+        var user = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
         if (user == null ||
             !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-        {
             throw new Exception("Invalid credentials");
-        }
 
         Claim[] claims =
         [
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
         ];
-        
-        SymmetricSecurityKey key = 
+
+        var key =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
-        SigningCredentials creds = 
+        var creds =
             new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        JwtSecurityToken token = new JwtSecurityToken(
+        var token = new JwtSecurityToken(
             _jwtConfig.Issuer,
             _jwtConfig.Audience,
             claims,
