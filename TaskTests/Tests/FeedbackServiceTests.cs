@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Pre_Trainee_Task.Tests;
 using Microsoft.EntityFrameworkCore;
 using Pre_Trainee_Task.Data;
@@ -16,7 +18,8 @@ public class FeedbackServiceTests
             .Options;
 
         context = new FeedbackDbContext(options);
-        return new FeedbackService(context);
+        return new FeedbackService(context, new AuditService(context),
+            new HttpContextAccessor());
     }
 
     [Fact]

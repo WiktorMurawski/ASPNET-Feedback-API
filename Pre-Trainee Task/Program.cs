@@ -67,6 +67,9 @@ public static class Program
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddSingleton<IEmailService, DummyEmailService>();
+        
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IAuditService, AuditService>();
 
         // Makes JWT work with swagger
         builder.Services.AddSwaggerGen(options =>
