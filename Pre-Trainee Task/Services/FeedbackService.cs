@@ -10,7 +10,7 @@ public class FeedbackService : IFeedbackService
     private readonly IAuditService _auditService;
     private readonly FeedbackDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-
+    
     public FeedbackService(
         FeedbackDbContext context,
         IAuditService auditService,
@@ -21,6 +21,33 @@ public class FeedbackService : IFeedbackService
         _httpContextAccessor = httpContextAccessor;
     }
 
+    private void ValidateInput(FeedbackCreateDto dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto),
+                "FeedbackCreateDto cannot be null");
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            throw new ArgumentException("Title cannot be empty",
+                nameof(dto.Title));
+        if (string.IsNullOrWhiteSpace(dto.Message))
+            throw new ArgumentException("Message cannot be empty",
+                nameof(dto.Message));
+        if (dto.Title.Length > 100)
+            throw new ArgumentException(
+                "Title must be less than or equal to 100 characters.",
+                nameof(dto.Title));
+        if (dto.Message.Length > 1000)
+            throw new ArgumentException(
+                "Message must be less than or equal to 1000 characters.",
+                nameof(dto.Message));
+        if (!Enum.IsDefined(typeof(FeedbackStatus), dto.Status))
+            throw new ArgumentOutOfRangeException(nameof(dto.Status),
+                "Invalid status value");
+        if (!Enum.IsDefined(typeof(FeedbackType), dto.Type))
+            throw new ArgumentOutOfRangeException(nameof(dto.Type),
+                "Invalid type value");
+    }
+    
     public IQueryable<FeedbackReadDto> GetAll()
     {
         return _context.Feedbacks.Select(f => new FeedbackReadDto
@@ -54,6 +81,8 @@ public class FeedbackService : IFeedbackService
 
     public FeedbackReadDto Create(FeedbackCreateDto dto)
     {
+        ValidateInput(dto);
+        
         var feedback = new Feedback
         {
             Id = Guid.NewGuid(),
@@ -84,6 +113,8 @@ public class FeedbackService : IFeedbackService
 
     public FeedbackReadDto? Update(Guid id, FeedbackCreateDto dto)
     {
+        ValidateInput(dto);
+        
         var feedback = _context.Feedbacks.Find(id);
         if (feedback == null) return null;
 

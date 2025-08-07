@@ -21,11 +21,28 @@ public class AuthService : IAuthService
         _jwtConfig = jwtConfig.Value;
     }
 
+    private void ValidateInput(UserDto dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto), "UserDto cannot be null");
+
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            throw new ArgumentException("Email cannot be null or empty", nameof(dto.Email));
+
+        if (string.IsNullOrWhiteSpace(dto.Password))
+            throw new ArgumentException("Password cannot be null or empty", nameof(dto.Password));
+        
+        if(dto.Password.Length < 8 || dto.Password.Length > 50)
+            throw new ArgumentOutOfRangeException(nameof(dto.Password), "Password must be between 8 and 50 characters");
+    }
+    
     public User Register(UserDto dto)
     {
+        ValidateInput(dto);
+        
         var existingUser = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
-        if (existingUser != null) throw new Exception("User already exists");
+        if (existingUser != null) throw new InvalidOperationException("User already exists");
 
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
         var newUser = new User
@@ -43,11 +60,13 @@ public class AuthService : IAuthService
 
     public string Login(UserDto dto)
     {
+        ValidateInput(dto);
+        
         var user = _context.Users.FirstOrDefault(u =>
             u.Email == dto.Email);
         if (user == null ||
             !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            throw new Exception("Invalid credentials");
+            throw new UnauthorizedAccessException("Invalid credentials");
 
         Claim[] claims =
         [

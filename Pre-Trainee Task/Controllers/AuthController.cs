@@ -39,7 +39,11 @@ public class AuthController : ControllerBase
             var user = _authService.Register(dto);
             return Ok(new { user.Email });
         }
-        catch (Exception e)
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (InvalidOperationException e)
         {
             return BadRequest(e.Message);
         }
@@ -62,9 +66,13 @@ public class AuthController : ControllerBase
             var token = _authService.Login(dto);
             return Ok(new { token });
         }
-        catch (Exception e)
+        catch (UnauthorizedAccessException e)
         {
             return Unauthorized(e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
         }
     }
 }
