@@ -21,7 +21,7 @@ public class FeedbackService : IFeedbackService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public IEnumerable<FeedbackReadDto> GetAll()
+    public IQueryable<FeedbackReadDto> GetAll()
     {
         return _context.Feedbacks.Select(f => new FeedbackReadDto
         {
@@ -32,7 +32,7 @@ public class FeedbackService : IFeedbackService
             Status = f.Status,
             CreatedAt = f.CreatedAt,
             UserId = f.UserId
-        }).ToList();
+        });
     }
 
     public FeedbackReadDto? GetById(Guid id)
@@ -65,9 +65,8 @@ public class FeedbackService : IFeedbackService
             UserId = dto.UserId
         };
 
-        var logEntry = MakeAuditLogEntry(feedback.Id, Method.POST);
+        MakeAuditLogEntry(feedback.Id, Method.POST);
 
-        _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Add(feedback);
         _context.SaveChanges();
 
@@ -94,9 +93,8 @@ public class FeedbackService : IFeedbackService
         feedback.Type = dto.Type;
         feedback.UserId = dto.UserId;
 
-        var logEntry = MakeAuditLogEntry(feedback.Id, Method.PUT);
+        MakeAuditLogEntry(feedback.Id, Method.PUT);
 
-        _context.AuditLogs.Add(logEntry);
         _context.SaveChanges();
 
         return new FeedbackReadDto
@@ -116,17 +114,16 @@ public class FeedbackService : IFeedbackService
         var feedback = _context.Feedbacks.Find(id);
         if (feedback == null) return false;
 
-        var logEntry = MakeAuditLogEntry(feedback.Id, Method.DELETE);
+        MakeAuditLogEntry(feedback.Id, Method.DELETE);
 
-        _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Remove(feedback);
         _context.SaveChanges();
         return true;
     }
 
-    private AuditLogEntry MakeAuditLogEntry(Guid id, Method method)
+    private void MakeAuditLogEntry(Guid id, Method method)
     {
-        return new AuditLogEntry()
+        var logEntry =  new AuditLogEntry()
         {
             Id = Guid.NewGuid(),
             Actor = GetCurrentUser(),
@@ -134,6 +131,7 @@ public class FeedbackService : IFeedbackService
             Method = method,
             Timestamp = DateTime.UtcNow
         };
+        _auditService.Log(logEntry);
     }
     
     private string GetCurrentUser()

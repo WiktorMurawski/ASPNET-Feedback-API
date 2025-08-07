@@ -82,10 +82,11 @@ public class FeedbackController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        List<FeedbackReadDto> feedbacks = _feedbackService.GetAll().ToList();
-
-        var totalItems = feedbacks.Count;
-        var pagedFeedbacks = feedbacks
+        IQueryable<FeedbackReadDto> feedbacks = _feedbackService.GetAll();
+        
+        int totalItems = feedbacks.Count();
+        List<FeedbackReadDto> pagedFeedbacks = feedbacks
+            .OrderBy(f => f.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();

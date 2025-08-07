@@ -4,7 +4,7 @@ namespace Pre_Trainee_Task.Services;
 
 public interface IFeedbackService
 {
-    IEnumerable<FeedbackReadDto> GetAll();
+    IQueryable<FeedbackReadDto> GetAll();
     FeedbackReadDto? GetById(Guid id);
     FeedbackReadDto Create(FeedbackCreateDto dto);
     FeedbackReadDto? Update(Guid id, FeedbackCreateDto dto);
