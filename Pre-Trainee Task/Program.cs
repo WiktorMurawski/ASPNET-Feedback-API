@@ -24,7 +24,7 @@ public static class Program
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error during adding services to builder: {e}");
+            Console.WriteLine($"Exception during adding services to builder: {e}");
         }
 
         var app = builder.Build();
@@ -114,8 +114,9 @@ public static class Program
             .GetSection("Jwt")
             .Get<JwtConfig>();
         if (jwtConfig == null)
-            throw new Exception(
+            throw new InvalidOperationException(
                 "JWT config couldn't be found in appsettings.json");
+
 
         // JWT auth
         builder.Services

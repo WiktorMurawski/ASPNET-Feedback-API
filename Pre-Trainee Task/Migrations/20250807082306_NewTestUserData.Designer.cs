@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pre_Trainee_Task.Data;
 
@@ -10,9 +11,11 @@ using Pre_Trainee_Task.Data;
 namespace Pre_Trainee_Task.Migrations
 {
     [DbContext(typeof(FeedbackDbContext))]
-    partial class FeedbackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250807082306_NewTestUserData")]
+    partial class NewTestUserData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -23,7 +26,7 @@ namespace Pre_Trainee_Task.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Actor")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
@@ -77,33 +80,33 @@ namespace Pre_Trainee_Task.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e0e12545-da81-4c90-9259-61fb9d5a0ae9"),
-                            CreatedAt = new DateTime(2025, 8, 7, 12, 44, 58, 705, DateTimeKind.Utc).AddTicks(3441),
+                            Id = new Guid("fe6aa8d8-8b0b-40a3-9e0a-6b6710132948"),
+                            CreatedAt = new DateTime(2025, 8, 7, 8, 23, 5, 516, DateTimeKind.Utc).AddTicks(653),
                             Message = "Bug description message",
                             Status = 0,
                             Title = "Bug Title",
                             Type = 0,
-                            UserId = new Guid("2d546791-bfc1-467a-8fab-48be1130fc91")
+                            UserId = new Guid("df747bf0-c59c-4d0e-ad03-57b3daef53d9")
                         },
                         new
                         {
-                            Id = new Guid("1083acd1-7184-4f69-87f0-c6c2c8d356ca"),
+                            Id = new Guid("51796d6f-12b8-4e3a-a52a-8ed73bfeb2a3"),
                             CreatedAt = new DateTime(2025, 8, 6, 0, 0, 0, 0, DateTimeKind.Local),
                             Message = "Suggestion description message",
                             Status = 1,
                             Title = "Suggestion Title",
                             Type = 1,
-                            UserId = new Guid("55f928b5-2c59-433b-ad04-179e3bffca06")
+                            UserId = new Guid("c2fe8f01-c50a-42ad-9ced-57a7a08e6a53")
                         },
                         new
                         {
-                            Id = new Guid("2902bd6b-7c51-4b73-9e3e-2ca82d6758a6"),
-                            CreatedAt = new DateTime(2025, 7, 31, 12, 44, 58, 705, DateTimeKind.Utc).AddTicks(3647),
+                            Id = new Guid("771fd9e5-12b3-45ab-9ddb-185eab01516c"),
+                            CreatedAt = new DateTime(2025, 7, 31, 8, 23, 5, 516, DateTimeKind.Utc).AddTicks(978),
                             Message = "Question message",
                             Status = 2,
                             Title = "Question Title",
                             Type = 2,
-                            UserId = new Guid("511cf337-5cb7-425c-8993-ab03cb0c2d04")
+                            UserId = new Guid("7fb51546-f5e6-4a2d-ad3a-711f1ea14a48")
                         });
                 });
 
@@ -133,16 +136,16 @@ namespace Pre_Trainee_Task.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2dfdf577-6749-4107-b576-50616e91bc1b"),
+                            Id = new Guid("b0c45641-a6bd-4d18-b575-eb258c2e15c4"),
                             Email = "admin@admin.com",
-                            PasswordHash = "$2a$11$VOPNgeLmzuxwMK01aCoT/uzpMhXgiew3jMA7brVurLDKvUSDk5iXe",
+                            PasswordHash = "$2a$11$9/.2Y102RKTiCvo91sI2n.4Riy/TTspYjcryfXGffaL.lH/fTSA/i",
                             Role = 1
                         },
                         new
                         {
-                            Id = new Guid("5a1edbc7-8fe6-4d7b-a560-aa49f858ac94"),
+                            Id = new Guid("0a8e1a43-1a2b-4ae7-bfd9-058a81cb6ceb"),
                             Email = "user@user.com",
-                            PasswordHash = "$2a$11$khNXzAXpbJADyJkZttu43uzQEzyRu7QiCCIBYNBZ4aPXvZj/7cuIa",
+                            PasswordHash = "$2a$11$bffMJwOsVtn2kIEo0RROH.X6WbTdLbj5mdR6NxGbXm8q3kxN.oUty",
                             Role = 0
                         });
                 });
