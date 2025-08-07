@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Pre_Trainee_Task.Data;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Models;
@@ -48,9 +49,46 @@ public class FeedbackService : IFeedbackService
                 "Invalid type value");
     }
     
-    public IQueryable<FeedbackReadDto> GetAll()
+    private async Task MakeAuditLogEntryAsync(Guid id, Method method)
     {
-        return _context.Feedbacks.Select(f => new FeedbackReadDto
+        var logEntry =  new AuditLogEntry()
+        {
+            Id = Guid.NewGuid(),
+            Email = GetCurrentUserEmail(),
+            FeedbackId = id,
+            Method = method,
+            Timestamp = DateTime.UtcNow
+        };
+        await _auditService.LogAsync(logEntry);
+    }
+    
+    private string GetCurrentUserEmail()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+
+        var email = user?.FindFirst(ClaimTypes.Email)?.Value;
+        if (!string.IsNullOrEmpty(email))
+            return email;
+
+        return "Unknown";
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        
+        var id = user?.FindFirst(ClaimTypes.Actor)?.Value;
+        Guid result = Guid.Empty;
+        if (!string.IsNullOrEmpty(id))
+            Guid.TryParse(id, out result);
+        
+        return result;
+    }
+    
+    public async Task<(int, List<FeedbackReadDto>)> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        IQueryable<FeedbackReadDto> query = _context.Feedbacks.Select(f
+            => new FeedbackReadDto
         {
             Id = f.Id,
             Title = f.Title,
@@ -60,11 +98,21 @@ public class FeedbackService : IFeedbackService
             CreatedAt = f.CreatedAt,
             UserId = f.UserId
         });
+
+        int itemCount = await query.CountAsync();
+
+        var pagedItems = await query
+            .OrderBy(f => f.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (itemCount, pagedItems);
     }
 
-    public FeedbackReadDto? GetById(Guid id)
+    public async Task<FeedbackReadDto?> GetFeedbackByIdAsync(Guid id)
     {
-        var feedback = _context.Feedbacks.Find(id);
+        var feedback = await _context.Feedbacks.FindAsync(id);
         if (feedback == null) return null;
 
         return new FeedbackReadDto
@@ -79,10 +127,10 @@ public class FeedbackService : IFeedbackService
         };
     }
 
-    public FeedbackReadDto Create(FeedbackCreateDto dto)
+    public async Task<FeedbackReadDto> CreateAsync(FeedbackCreateDto dto)
     {
         ValidateInput(dto);
-        
+
         var feedback = new Feedback
         {
             Id = Guid.NewGuid(),
@@ -91,13 +139,13 @@ public class FeedbackService : IFeedbackService
             Type = dto.Type,
             Status = dto.Status,
             CreatedAt = DateTime.UtcNow,
-            UserId = dto.UserId
+            UserId = GetCurrentUserId()
         };
 
-        MakeAuditLogEntry(feedback.Id, Method.POST);
+        await MakeAuditLogEntryAsync(feedback.Id, Method.POST);
 
-        _context.Feedbacks.Add(feedback);
-        _context.SaveChanges();
+        await _context.Feedbacks.AddAsync(feedback);
+        await _context.SaveChangesAsync();
 
         return new FeedbackReadDto
         {
@@ -111,22 +159,22 @@ public class FeedbackService : IFeedbackService
         };
     }
 
-    public FeedbackReadDto? Update(Guid id, FeedbackCreateDto dto)
+    public async Task<FeedbackReadDto?> UpdateAsync(Guid id, FeedbackCreateDto dto)
     {
         ValidateInput(dto);
-        
-        var feedback = _context.Feedbacks.Find(id);
+
+        var feedback = await _context.Feedbacks.FindAsync(id);
         if (feedback == null) return null;
 
         feedback.Title = dto.Title;
         feedback.Message = dto.Message;
         feedback.Status = dto.Status;
         feedback.Type = dto.Type;
-        feedback.UserId = dto.UserId;
+        feedback.UserId = GetCurrentUserId();
 
-        MakeAuditLogEntry(feedback.Id, Method.PUT);
+        await MakeAuditLogEntryAsync(feedback.Id, Method.PUT);
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return new FeedbackReadDto
         {
@@ -139,40 +187,17 @@ public class FeedbackService : IFeedbackService
             UserId = feedback.UserId
         };
     }
-
-    public bool Delete(Guid id)
+    
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        var feedback = _context.Feedbacks.Find(id);
+        var feedback = await _context.Feedbacks.FindAsync(id);
         if (feedback == null) return false;
 
-        MakeAuditLogEntry(feedback.Id, Method.DELETE);
-
+        await MakeAuditLogEntryAsync(feedback.Id, Method.DELETE);
+        
         _context.Feedbacks.Remove(feedback);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+
         return true;
-    }
-
-    private void MakeAuditLogEntry(Guid id, Method method)
-    {
-        var logEntry =  new AuditLogEntry()
-        {
-            Id = Guid.NewGuid(),
-            Actor = GetCurrentUser(),
-            FeedbackId = id,
-            Method = method,
-            Timestamp = DateTime.UtcNow
-        };
-        _auditService.Log(logEntry);
-    }
-    
-    private string GetCurrentUser()
-    {
-        var user = _httpContextAccessor.HttpContext?.User;
-
-        var email = user?.FindFirst(ClaimTypes.Email)?.Value;
-        if (!string.IsNullOrEmpty(email))
-            return email;
-
-        return "Unknown";
     }
 }

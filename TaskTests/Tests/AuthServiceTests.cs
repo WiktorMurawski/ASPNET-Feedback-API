@@ -31,7 +31,7 @@ namespace TestProject.Tests
         }
 
         [Fact]
-        public void Register_ShouldCreateNewUser_WhenUserDoesNotExist()
+        public async Task Register_ShouldCreateNewUser_WhenUserDoesNotExist()
         {
             var service = GetService(out var context, out var jwtConfig);
 
@@ -41,7 +41,7 @@ namespace TestProject.Tests
                 Password = "Password123"
             };
 
-            var result = service.Register(dto);
+            var result = await service.Register(dto);
 
             Assert.NotNull(result);
             Assert.Equal(dto.Email, result.Email);
@@ -50,16 +50,16 @@ namespace TestProject.Tests
         }
 
         [Fact]
-        public void Register_ShouldThrowException_WhenUserAlreadyExists()
+        public async Task Register_ShouldThrowException_WhenUserAlreadyExists()
         {
             var service = GetService(out var context, out var jwtConfig);
 
-            context.Users.Add(new User
+            await context.Users.AddAsync(new User
             {
                 Email = "existing@example.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password")
             });
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var dto = new UserDto
             {
@@ -67,11 +67,11 @@ namespace TestProject.Tests
                 Password = "Password123"
             };
 
-            Assert.Throws<Exception>(() => service.Register(dto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.Register(dto));
         }
 
         [Fact]
-        public void Login_ShouldReturnJWTToken_WhenCredentialsAreValid()
+        public async Task Login_ShouldReturnJWTToken_WhenCredentialsAreValid()
         {
             var service = GetService(out var context, out var jwtConfig);
 
@@ -83,8 +83,8 @@ namespace TestProject.Tests
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                 Role = UserRole.User
             };
-            context.Users.Add(user);
-            context.SaveChanges();
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
 
             var dto = new UserDto
             {
@@ -92,7 +92,7 @@ namespace TestProject.Tests
                 Password = password
             };
 
-            var token = service.Login(dto);
+            var token = await service.Login(dto);
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
 
@@ -105,7 +105,7 @@ namespace TestProject.Tests
         }
 
         [Fact]
-        public void Login_ShouldThrowException_WhenEmailIsNotRegistered()
+        public async Task Login_ShouldThrowException_WhenEmailIsNotRegistered()
         {
             var service = GetService(out var context, out var jwtConfig);
 
@@ -115,22 +115,22 @@ namespace TestProject.Tests
                 Password = "something"
             };
 
-            Assert.Throws<Exception>(() => service.Login(dto));
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.Login(dto));
         }
 
         [Fact]
-        public void Login_ShouldThrowException_WhenPasswordIsIncorrect()
+        public async Task Login_ShouldThrowException_WhenPasswordIsIncorrect()
         {
             var service = GetService(out var context, out var jwtConfig);
 
-            context.Users.Add(new User
+            await context.Users.AddAsync(new User
             {
                 Email = "user@test.com",
                 PasswordHash =
                     BCrypt.Net.BCrypt.HashPassword("CorrectPassword"),
                 Role = UserRole.User
             });
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var dto = new UserDto
             {
@@ -138,7 +138,7 @@ namespace TestProject.Tests
                 Password = "WrongPassword"
             };
 
-            Assert.Throws<Exception>(() => service.Login(dto));
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.Login(dto));
         }
 
         [Theory]
@@ -153,7 +153,7 @@ namespace TestProject.Tests
         [InlineData("test@test.com", "1234567")]
         [InlineData("test@test.com",
             "000000000000000000000000000000000000000000000000000")]
-        public void Register_ShouldThrowException_WhenDataISBad(
+        public async Task Register_ShouldThrowException_WhenDataISBad(
             string email, string password)
         {
             var service = GetService(out var context, out var jwtConfig);
@@ -165,8 +165,8 @@ namespace TestProject.Tests
                 dto = new UserDto { Email = email, Password = password };
             }
 
-            var exception =
-                Assert.ThrowsAny<ArgumentException>(() =>
+            var exception = await
+                Assert.ThrowsAnyAsync<ArgumentException>(() =>
                     service.Register(dto));
 
             Assert.False(string.IsNullOrWhiteSpace(exception.Message));
@@ -183,14 +183,14 @@ namespace TestProject.Tests
         [InlineData("test@test.com", "")]
         [InlineData("test@test.com", "1234567")]
         [InlineData("test@test.com", "000000000000000000000000000000000000000000000000000")]
-        public void Login_ShouldThrowException_WhenDataIsBad(
+        public async Task Login_ShouldThrowException_WhenDataIsBad(
             string email, string password)
         {
             var service = GetService(out var context, out var jwtConfig);
             
             UserDto dto = new UserDto { Email = email, Password = password };
 
-            var exception = Assert.ThrowsAny<ArgumentException>(() => service.Login(dto));
+            var exception = await Assert.ThrowsAnyAsync<ArgumentException>(() => service.Login(dto));
 
             Assert.False(string.IsNullOrWhiteSpace(exception.Message));
         }

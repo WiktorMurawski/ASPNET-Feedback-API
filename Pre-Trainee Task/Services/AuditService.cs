@@ -12,9 +12,9 @@ public class AuditService : IAuditService
         _context = context;
     }
 
-    public void Log(AuditLogEntry log)
+    public async Task LogAsync(AuditLogEntry log)
     {
-        _context.AuditLogs.Add(log);
-        _context.SaveChanges();
+        await _context.AuditLogs.AddAsync(log);
+        await _context.SaveChangesAsync();
     }
 }

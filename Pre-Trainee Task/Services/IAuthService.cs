@@ -5,6 +5,6 @@ namespace Pre_Trainee_Task.Services;
 
 public interface IAuthService
 {
-    User Register(UserDto dto);
-    string Login(UserDto dto);
+    Task<User> Register(UserDto dto);
+    Task<string> Login(UserDto dto);
 }

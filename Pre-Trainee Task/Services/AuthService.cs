@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Pre_Trainee_Task.Config;
@@ -36,11 +37,11 @@ public class AuthService : IAuthService
             throw new ArgumentOutOfRangeException(nameof(dto.Password), "Password must be between 8 and 50 characters");
     }
     
-    public User Register(UserDto dto)
+    public async Task<User> Register(UserDto dto)
     {
         ValidateInput(dto);
         
-        var existingUser = _context.Users.FirstOrDefault(u =>
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
             u.Email == dto.Email);
         if (existingUser != null) throw new InvalidOperationException("User already exists");
 
@@ -52,17 +53,17 @@ public class AuthService : IAuthService
             Role = UserRole.User
         };
 
-        _context.Users.Add(newUser);
-        _context.SaveChanges();
+        await _context.Users.AddAsync(newUser);
+        await _context.SaveChangesAsync();
 
         return newUser;
     }
 
-    public string Login(UserDto dto)
+    public async Task<string> Login(UserDto dto)
     {
         ValidateInput(dto);
         
-        var user = _context.Users.FirstOrDefault(u =>
+        var user = await _context.Users.FirstOrDefaultAsync(u =>
             u.Email == dto.Email);
         if (user == null ||
             !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -71,7 +72,8 @@ public class AuthService : IAuthService
         Claim[] claims =
         [
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new(ClaimTypes.Actor, user.Id.ToString())
         ];
 
         var key =

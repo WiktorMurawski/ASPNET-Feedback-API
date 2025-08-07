@@ -30,13 +30,13 @@ public class AuthController : ControllerBase
     /// <response code="200">User registered successfully</response>
     /// <response code="400">Invalid request data or registration error</response>
     [HttpPost("register")]
-    public IActionResult Register(UserDto? dto)
+    public async Task<IActionResult> Register(UserDto? dto)
     {
         if (dto == null) return BadRequest();
 
         try
         {
-            var user = _authService.Register(dto);
+            var user = await _authService.Register(dto);
             return Ok(new { user.Email });
         }
         catch (ArgumentException e)
@@ -57,13 +57,13 @@ public class AuthController : ControllerBase
     /// <response code="200">User authenticated successfully</response>
     /// <response code="401">Authentication failed</response>
     [HttpPost("login")]
-    public IActionResult Login(UserDto? dto)
+    public async Task<IActionResult> Login(UserDto? dto)
     {
         if (dto == null) return BadRequest();
 
         try
         {
-            var token = _authService.Login(dto);
+            var token = await _authService.Login(dto);
             return Ok(new { token });
         }
         catch (UnauthorizedAccessException e)

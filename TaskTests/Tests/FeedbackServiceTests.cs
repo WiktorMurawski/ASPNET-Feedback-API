@@ -21,7 +21,7 @@ public class FeedbackServiceTests
     }
 
     [Fact]
-    public void Create_ShouldAddFeedback()
+    public async Task Create_ShouldAddFeedback()
     {
         var service = GetService(out var context);
         var dto = new FeedbackCreateDto
@@ -30,28 +30,28 @@ public class FeedbackServiceTests
             Message = "Test Message",
             Status = FeedbackStatus.InProgress,
             Type = FeedbackType.Bug,
-            UserId = Guid.NewGuid()
+            // UserId = Guid.NewGuid()
         };
 
-        var result = service.Create(dto);
+        var result = await service.CreateAsync(dto);
 
         Assert.Equal("Test Title", result.Title);
         Assert.Equal("Test Message", result.Message);
         Assert.Single(context.Feedbacks);
     }
-
+    
     [Fact]
-    public void GetById_ShouldReturnNull_IfNotFound()
+    public async Task GetById_ShouldReturnNull_IfNotFound()
     {
         var service = GetService(out _);
 
-        var result = service.GetById(Guid.NewGuid());
+        var result = await service.GetFeedbackByIdAsync(Guid.NewGuid());
 
         Assert.Null(result);
     }
 
     [Fact]
-    public void Update_ShouldUpdateFeedback()
+    public async Task Update_ShouldUpdateFeedback()
     {
         var service = GetService(out var context);
 
@@ -66,8 +66,8 @@ public class FeedbackServiceTests
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             UserId = Guid.NewGuid()
         };
-        context.Feedbacks.Add(oldFeedback);
-        context.SaveChanges();
+        await context.Feedbacks.AddAsync(oldFeedback);
+        await context.SaveChangesAsync();
 
         var dto = new FeedbackCreateDto
         {
@@ -75,10 +75,9 @@ public class FeedbackServiceTests
             Message = "New Message",
             Status = FeedbackStatus.Closed,
             Type = FeedbackType.Bug,
-            UserId = Guid.NewGuid()
         };
-        service.Update(id, dto);
-        var newFeedback = context.Feedbacks.Find(id);
+        await service.UpdateAsync(id, dto);
+        var newFeedback = await context.Feedbacks.FindAsync(id);
 
         Assert.NotNull(newFeedback);
         Assert.Equal(newFeedback.Id, oldFeedback.Id);
@@ -90,22 +89,22 @@ public class FeedbackServiceTests
     }
 
     [Fact]
-    public void Delete_ShouldReturnFalse_IfNotFound()
+    public async Task DeleteAsync_ShouldReturnFalse_IfNotFound()
     {
-        var service = GetService(out var context);
+        var service = GetService(out _);
 
-        var result = service.Delete(Guid.NewGuid());
+        var result = await service.DeleteAsync(Guid.NewGuid());
 
         Assert.False(result);
     }
 
     [Fact]
-    public void Delete_ShouldDeleteFeedback()
+    public async Task DeleteAsync_ShouldDeleteFeedback()
     {
         var service = GetService(out var context);
 
         var id = Guid.NewGuid();
-        context.Feedbacks.Add(new Feedback
+        await context.Feedbacks.AddAsync(new Feedback
         {
             Id = id,
             Title = "Title",
@@ -115,16 +114,16 @@ public class FeedbackServiceTests
             CreatedAt = DateTime.UtcNow,
             UserId = Guid.NewGuid()
         });
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
-        var result = service.Delete(id);
+        var result = await service.DeleteAsync(id);
 
         Assert.True(result);
-        Assert.Null(context.Feedbacks.Find(id));
+        Assert.Null(await context.Feedbacks.FindAsync(id));
     }
 
     [Fact]
-    public void AuditLogs_ShouldGetCreated()
+    public async Task AuditLogs_ShouldGetCreated()
     {
         var service = GetService(out var context);
         
@@ -135,9 +134,9 @@ public class FeedbackServiceTests
             Message = "Test Message",
             Status = FeedbackStatus.InProgress,
             Type = FeedbackType.Bug,
-            UserId = Guid.NewGuid()
+            // UserId = Guid.NewGuid()
         };
-        var feedbackPost = service.Create(dtoPost);
+        var feedbackPost = await service.CreateAsync(dtoPost);
         var idPost = feedbackPost.Id;
         
         // PUT
@@ -152,8 +151,8 @@ public class FeedbackServiceTests
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             UserId = Guid.NewGuid()
         };
-        context.Feedbacks.Add(oldFeedback);
-        context.SaveChanges();
+        await context.Feedbacks.AddAsync(oldFeedback);
+        await context.SaveChangesAsync();
         
         var dtoPut = new FeedbackCreateDto
         {
@@ -161,13 +160,13 @@ public class FeedbackServiceTests
             Message = "New Message",
             Status = FeedbackStatus.Closed,
             Type = FeedbackType.Bug,
-            UserId = Guid.NewGuid()
+            // UserId = Guid.NewGuid()
         };
-        service.Update(idPut, dtoPut);
+        await service.UpdateAsync(idPut, dtoPut);
         
         // DELETE
         var idDelete = Guid.NewGuid();
-        context.Feedbacks.Add(new Feedback
+        await context.Feedbacks.AddAsync(new Feedback
         {
             Id = idDelete,
             Title = "Title",
@@ -177,14 +176,14 @@ public class FeedbackServiceTests
             CreatedAt = DateTime.UtcNow,
             UserId = Guid.NewGuid()
         });
-        context.SaveChanges();
-        service.Delete(idDelete);
+        await context.SaveChangesAsync();
+        await service.DeleteAsync(idDelete);
 
-        var result1 = context.AuditLogs.FirstOrDefault(log => 
+        var result1 = await context.AuditLogs.FirstOrDefaultAsync(log => 
             log.FeedbackId == idPost);
-        var result2 = context.AuditLogs.FirstOrDefault(log => 
+        var result2 = await context.AuditLogs.FirstOrDefaultAsync(log => 
             log.FeedbackId == idPut);
-        var result3 = context.AuditLogs.FirstOrDefault(log => 
+        var result3 = await context.AuditLogs.FirstOrDefaultAsync(log => 
             log.FeedbackId == idDelete);
         
         Assert.NotNull(result1);
@@ -199,7 +198,7 @@ public class FeedbackServiceTests
     [InlineData("title","",(FeedbackStatus)0,(FeedbackType)0)]
     [InlineData("title","message",(FeedbackStatus)4,(FeedbackType)0)]
     [InlineData("title","message",(FeedbackStatus)0,(FeedbackType)4)]
-    public void Create_ShouldThrowException_WhenDataIsBad(string title, string message, FeedbackStatus status, FeedbackType feedbackType)
+    public async Task Create_ShouldThrowException_WhenDataIsBad(string title, string message, FeedbackStatus status, FeedbackType feedbackType)
     {
         var service = GetService(out _);
 
@@ -209,10 +208,10 @@ public class FeedbackServiceTests
             Message = message,
             Status = status,
             Type = feedbackType,
-            UserId = Guid.NewGuid()
+            // UserId = Guid.NewGuid()
         };
     
-        var exception = Assert.ThrowsAny<ArgumentException>(() => service.Create(dto));
+        var exception = await Assert.ThrowsAnyAsync<ArgumentException>(() => service.CreateAsync(dto));
     
         Assert.False(string.IsNullOrWhiteSpace(exception.Message));
     }
