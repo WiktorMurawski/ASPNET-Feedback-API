@@ -71,7 +71,7 @@ public class FeedbackController : ControllerBase
 
     // GET /api/feedback — List all feedback
     /// <summary>
-    ///     Retrieves paginated feedback results
+    ///     GET method that retrieves paginated feedback results
     /// </summary>
     /// <param name="pageNumber">Page number (default 1)</param>
     /// <param name="pageSize">Number of items per page (default 5)</param>

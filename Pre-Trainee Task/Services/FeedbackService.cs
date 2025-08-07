@@ -65,14 +65,7 @@ public class FeedbackService : IFeedbackService
             UserId = dto.UserId
         };
 
-        var logEntry = new AuditLogEntry
-        {
-            Id = Guid.NewGuid(),
-            Actor = GetCurrentUser(),
-            FeedbackId = feedback.Id,
-            Method = Method.POST,
-            Timestamp = DateTime.UtcNow
-        };
+        var logEntry = MakeAuditLogEntry(feedback.Id, Method.POST);
 
         _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Add(feedback);
@@ -101,14 +94,7 @@ public class FeedbackService : IFeedbackService
         feedback.Type = dto.Type;
         feedback.UserId = dto.UserId;
 
-        var logEntry = new AuditLogEntry
-        {
-            Id = Guid.NewGuid(),
-            Actor = GetCurrentUser(),
-            FeedbackId = feedback.Id,
-            Method = Method.PUT,
-            Timestamp = DateTime.UtcNow
-        };
+        var logEntry = MakeAuditLogEntry(feedback.Id, Method.PUT);
 
         _context.AuditLogs.Add(logEntry);
         _context.SaveChanges();
@@ -130,14 +116,7 @@ public class FeedbackService : IFeedbackService
         var feedback = _context.Feedbacks.Find(id);
         if (feedback == null) return false;
 
-        var logEntry = new AuditLogEntry
-        {
-            Id = Guid.NewGuid(),
-            Actor = GetCurrentUser(),
-            FeedbackId = feedback.Id,
-            Method = Method.PUT,
-            Timestamp = DateTime.UtcNow
-        };
+        var logEntry = MakeAuditLogEntry(feedback.Id, Method.DELETE);
 
         _context.AuditLogs.Add(logEntry);
         _context.Feedbacks.Remove(feedback);
@@ -145,6 +124,18 @@ public class FeedbackService : IFeedbackService
         return true;
     }
 
+    private AuditLogEntry MakeAuditLogEntry(Guid id, Method method)
+    {
+        return new AuditLogEntry()
+        {
+            Id = Guid.NewGuid(),
+            Actor = GetCurrentUser(),
+            FeedbackId = id,
+            Method = method,
+            Timestamp = DateTime.UtcNow
+        };
+    }
+    
     private string GetCurrentUser()
     {
         var user = _httpContextAccessor.HttpContext?.User;
