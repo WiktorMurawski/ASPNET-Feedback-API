@@ -26,14 +26,14 @@ public class FeedbackDbContext : DbContext
                 Email = "admin@admin.com",
                 PasswordHash =
                     BCrypt.Net.BCrypt
-                        .HashPassword("admin"), // very bad, only for testing
+                        .HashPassword("password"), // bad, only for testing
                 Role = UserRole.Admin
             },
             new User
             {
                 Id = Guid.NewGuid(),
                 Email = "user@user.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("1234"),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("12341234"),
                 Role = UserRole.User
             });
 
