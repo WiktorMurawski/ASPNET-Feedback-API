@@ -27,14 +27,16 @@ public class AuthService : IAuthService
         if (dto == null)
             throw new ArgumentNullException(nameof(dto), "UserDto cannot be null");
 
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            throw new ArgumentException("Email cannot be null or empty", nameof(dto.Email));
-
-        if (string.IsNullOrWhiteSpace(dto.Password))
-            throw new ArgumentException("Password cannot be null or empty", nameof(dto.Password));
+        // not needed because of DataAnnotations
         
-        if(dto.Password.Length < 8 || dto.Password.Length > 50)
-            throw new ArgumentOutOfRangeException(nameof(dto.Password), "Password must be between 8 and 50 characters");
+        // if (string.IsNullOrWhiteSpace(dto.Email))
+        //     throw new ArgumentException("Email cannot be null or empty", nameof(dto.Email));
+
+        // if (string.IsNullOrWhiteSpace(dto.Password))
+        //     throw new ArgumentException("Password cannot be null or empty", nameof(dto.Password));
+       
+        // if(dto.Password.Length < 8 || dto.Password.Length > 50)
+        //     throw new ArgumentOutOfRangeException(nameof(dto.Password), "Password must be between 8 and 50 characters");
     }
     
     public async Task<User> Register(UserDto dto)
