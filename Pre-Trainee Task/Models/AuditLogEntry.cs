@@ -12,7 +12,7 @@ public class AuditLogEntry
 
     [Required]
     [MaxLength(100)]
-    public string Actor { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
