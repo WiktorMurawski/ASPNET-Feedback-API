@@ -98,7 +98,7 @@ public class FeedbackController : ControllerBase
         
         var feedback = await _feedbackService.CreateAsync(dto);
         
-        SendEmailAsync("admin@admin.com", "New Feedback Created", $"Feedback content:\n{feedback}");
+        await SendEmailAsync("admin@admin.com", "New Feedback Created", $"Feedback content:\n{feedback}");
         
         return Created($"/api/feedback/{feedback.Id}", feedback); // Fix
         
@@ -122,7 +122,7 @@ public class FeedbackController : ControllerBase
         var feedback = await _feedbackService.UpdateAsync(id, dto);
         if (feedback == null) return NotFound();
 
-        SendEmailAsync("admin@admin.com", $"Feedback {id} modified", $"New feedback content: {dto}");
+        await SendEmailAsync("admin@admin.com", $"Feedback {id} modified", $"New feedback content: {dto}");
         return Ok(feedback);
     }
 
@@ -140,12 +140,12 @@ public class FeedbackController : ControllerBase
         var deleted = await _feedbackService.DeleteAsync(id);
         if (!deleted) return NotFound();
 
-        SendEmailAsync("admin@admin.com", $"Feedback {id} deleted", $"Deleted feedback content: {feedback}");
+        await SendEmailAsync("admin@admin.com", $"Feedback {id} deleted", $"Deleted feedback content: {feedback}");
         return NoContent();
     }
     
-    private void SendEmailAsync(string email, string subject, string body)
+    private async Task SendEmailAsync(string email, string subject, string body)
     {
-        _ = Task.Run(async () => await _emailService.SendAsync(email, subject, body));
+        await _emailService.SendAsync(email, subject, body);
     }
 }
