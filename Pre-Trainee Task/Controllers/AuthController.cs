@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Pre_Trainee_Task.DTOs;
 using Pre_Trainee_Task.Services;
@@ -29,6 +30,7 @@ public class AuthController : ControllerBase
     /// <returns> The registered user's email if registration was successful</returns>
     /// <response code="200">User registered successfully</response>
     /// <response code="400">Invalid request data or registration error</response>
+    /// <response code="409">User already exists</response>
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserDto? dto)
     {
@@ -45,7 +47,7 @@ public class AuthController : ControllerBase
         }
         catch (InvalidOperationException e)
         {
-            return BadRequest(e.Message);
+            return Conflict(e.Message);
         }
     }
 
