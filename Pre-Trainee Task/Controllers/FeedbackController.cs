@@ -100,9 +100,9 @@ public class FeedbackController : ControllerBase
         
         await SendEmailAsync("admin@admin.com", "New Feedback Created", $"Feedback content:\n{feedback}");
         
-        return Created($"/api/feedback/{feedback.Id}", feedback); // Fix
-        
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = feedback.Id }, feedback); // For some reason the nameof can't be resolved?
+        // For some reason the nameof can't be resolved?
+        // Fixed: turns out ASP.NET was automatically suppressing the "Async" suffix
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = feedback.Id }, feedback); 
     }
     
     /// <summary>

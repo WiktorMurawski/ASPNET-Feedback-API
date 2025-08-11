@@ -140,6 +140,7 @@ public static class Program
         builder.Services.AddControllers(options =>
         {
             options.Filters.Add<ExecutionTimeFilter>();
+            options.SuppressAsyncSuffixInActionNames = false;
         });
 
         builder.Services.AddScoped<ExecutionTimeFilter>();
