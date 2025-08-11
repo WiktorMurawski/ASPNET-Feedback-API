@@ -27,26 +27,26 @@ public class FeedbackService : IFeedbackService
         if (dto == null)
             throw new ArgumentNullException(nameof(dto),
                 "FeedbackCreateDto cannot be null");
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            throw new ArgumentException("Title cannot be empty",
-                nameof(dto.Title));
-        if (string.IsNullOrWhiteSpace(dto.Message))
-            throw new ArgumentException("Message cannot be empty",
-                nameof(dto.Message));
-        if (dto.Title.Length > 100)
-            throw new ArgumentException(
-                "Title must be less than or equal to 100 characters.",
-                nameof(dto.Title));
-        if (dto.Message.Length > 1000)
-            throw new ArgumentException(
-                "Message must be less than or equal to 1000 characters.",
-                nameof(dto.Message));
-        if (!Enum.IsDefined(typeof(FeedbackStatus), dto.Status))
-            throw new ArgumentOutOfRangeException(nameof(dto.Status),
-                "Invalid status value");
-        if (!Enum.IsDefined(typeof(FeedbackType), dto.Type))
-            throw new ArgumentOutOfRangeException(nameof(dto.Type),
-                "Invalid type value");
+        // if (string.IsNullOrWhiteSpace(dto.Title))
+        //     throw new ArgumentException("Title cannot be empty",
+        //         nameof(dto.Title));
+        // if (string.IsNullOrWhiteSpace(dto.Message))
+        //     throw new ArgumentException("Message cannot be empty",
+        //         nameof(dto.Message));
+        // if (dto.Title.Length > 100)
+        //     throw new ArgumentException(
+        //         "Title must be less than or equal to 100 characters.",
+        //         nameof(dto.Title));
+        // if (dto.Message.Length > 1000)
+        //     throw new ArgumentException(
+        //         "Message must be less than or equal to 1000 characters.",
+        //         nameof(dto.Message));
+        // if (!Enum.IsDefined(typeof(FeedbackStatus), dto.Status))
+        //     throw new ArgumentOutOfRangeException(nameof(dto.Status),
+        //         "Invalid status value");
+        // if (!Enum.IsDefined(typeof(FeedbackType), dto.Type))
+        //     throw new ArgumentOutOfRangeException(nameof(dto.Type),
+        //         "Invalid type value");
     }
     
     private async Task MakeAuditLogEntryAsync(Guid id, Method method)
